@@ -1,0 +1,12 @@
+[
+  {
+    "directory": "/home/os/nvmevirt-host/",
+    "file": "host.c",
+    "command": "gcc -Wall -Wextra -pedantic -o host host.c"
+  },
+  {
+    "directory": "/home/os/nvmevirt-host/",
+    "file": "host_zns.c",
+    "command": "gcc -Wall -Wextra -pedantic -o host_zns host_zns.c"
+  }
+]
