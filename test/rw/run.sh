@@ -1,10 +1,8 @@
-ssd="/dev/nvme2n1"
-
-sudo dmesg -C
+ssd="/home/os/mnt/seq/1"
 
 make
-sudo ./host_zns $ssd
+sudo ./zonefs $ssd
 
 echo ""
 
-dmesg
+sudo dmesg

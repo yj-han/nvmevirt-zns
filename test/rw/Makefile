@@ -2,13 +2,13 @@ CC = gcc
 CFLAGS = -Wall -Wextra -pedantic
 KERNELDIR := /home/os/nvmevirt/
 
-all: host host_zns
+SRCS := $(wildcard *.c)
+PROGS := $(patsubst %.c,%,$(SRCS))
 
-host: host.c
-	$(CC) $(CFLAGS) -o host host.c
+all: $(PROGS)
 
-host_zns: host_zns.c
-	$(CC) $(CFLAGS) -o host_zns host_zns.c
+%: %.c
+	$(CC) $(CFLAGS) -o $@ $<
 
 clean:
-	rm -f host host_zns
+	rm -f $(PROGS)
