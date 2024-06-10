@@ -3,7 +3,6 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/fs.h>
-#include <malloc.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,45 +11,51 @@
 #include <sys/uio.h>
 #include <unistd.h>
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 4096
 
 int main(int argc, char **argv) {
-  FILE *file;
-  char read_buffer[BUFFER_SIZE];
+  int fd;
+  char *buffer;
+  ssize_t bytes_read, bytes_written;
 
-  file = fopen(argv[1], "wb");
-  if (file == NULL) {
-    printf("Error: Unable to open the file, %s\n", strerror(errno));
-    return -1;
+  // Allocate memory for the buffer (aligned to 512-byte boundary)
+  posix_memalign((void **)&buffer, 512, BUFFER_SIZE);
+
+  // Open the file for reading and writing with O_DIRECT flag
+  fd = open(argv[1], O_RDWR | O_DIRECT, 0644);
+  if (fd == -1) {
+    perror("Error opening file");
+    exit(EXIT_FAILURE);
   }
 
-  int ret = fputs("Hello World\n", file);
-  if (ret == EOF) {
-    printf("Error: Failed to write, %s\n", strerror(errno));
-    fclose(file);
-    return 1;
+  // Write some values to the buffer
+  strcpy(buffer, "Hello, World!\n");
+
+  // Write the buffer to the file using O_DIRECT
+  bytes_written = write(fd, buffer, BUFFER_SIZE);
+  if (bytes_written == -1) {
+    perror("Error writing file");
+    exit(EXIT_FAILURE);
   }
 
-  fclose(file);
+  // Reset the file offset to the beginning
+  lseek(fd, 0, SEEK_SET);
 
-  file = fopen(argv[1], "rb");
-  if (file == NULL) {
-    printf("Error: Unable to open the file, %s\n", strerror(errno));
-    return -1;
+  // Read from the file using O_DIRECT
+  bytes_read = read(fd, buffer, BUFFER_SIZE);
+  if (bytes_read == -1) {
+    perror("Error reading file");
+    exit(EXIT_FAILURE);
   }
 
-  while (fgets(read_buffer, sizeof read_buffer, file) != NULL) {
-    printf("%s", read_buffer);
-  }
+  // Print the contents of the buffer
+  printf("Read from file:\n%s", buffer);
 
-  // ssize_t bytes_read = fread(read_buffer, sizeof(char), BUFFER_SIZE, file);
-  // if (bytes_read == -1) {
-  //   printf("Error: Failed to read, %s\n", strerror(errno));
-  //   fclose(file);
-  //   return 1;
-  // }
-  //
-  // printf("Data read from the file : %.*s", (int)bytes_read, read_buffer);
-  fclose(file);
+  // Close the file
+  close(fd);
+
+  // Free the allocated memory
+  free(buffer);
+
   return 0;
 }
