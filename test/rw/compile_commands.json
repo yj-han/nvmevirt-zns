@@ -1,12 +1,17 @@
 [
   {
     "directory": "/home/os/nvmevirt-host/",
-    "file": "host.c",
-    "command": "gcc -Wall -Wextra -pedantic -o host host.c"
+    "file": "direct.c",
+    "command": "gcc -D_GNU_SOURCE -Wall -Wextra -pedantic -o direct direct.c"
   },
   {
     "directory": "/home/os/nvmevirt-host/",
-    "file": "host_zns.c",
-    "command": "gcc -Wall -Wextra -pedantic -o host_zns host_zns.c"
+    "file": "simple_bench.c",
+    "command": "gcc -D_GNU_SOURCE -Wall -Wextra -pedantic -o simple_bench simple_bench.c"
+  },
+  {
+    "directory": "/home/os/nvmevirt-host/",
+    "file": "passthru.c",
+    "command": "gcc -D_GNU_SOURCE -Wall -Wextra -pedantic -o passthru passthru.c"
   }
 ]

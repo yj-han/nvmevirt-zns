@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic
+CFLAGS = -D_GNU_SOURCE -Wall -Wextra -pedantic
 KERNELDIR := /home/os/nvmevirt/
 
 SRCS := $(wildcard *.c)

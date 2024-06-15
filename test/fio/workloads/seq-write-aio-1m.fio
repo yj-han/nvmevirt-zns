@@ -7,6 +7,7 @@ ioengine=libaio
 numjobs=${JOBS}
 iodepth=${DEPTH}
 group_reporting
+group_reporting
 
 [seq-write]
 filename=${DEV}

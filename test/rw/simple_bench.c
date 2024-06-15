@@ -41,8 +41,8 @@ int main(int argc, char **argv) {
     }
   }
   end = clock();
-  cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
-  printf("Write benchmark: %.2f seconds\n", cpu_time_used);
+  cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC * 1000000;
+  printf("Write benchmark: %.2f microseconds\n", cpu_time_used);
 
   // Reset the file offset to the beginning
   lseek(fd, 0, SEEK_SET);
@@ -57,8 +57,8 @@ int main(int argc, char **argv) {
     }
   }
   end = clock();
-  cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
-  printf("Read benchmark: %.2f seconds\n", cpu_time_used);
+  cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC * 1000000;
+  printf("Read benchmark: %.2f microseconds\n", cpu_time_used);
 
   // Print the contents of the buffer
   printf("Read from file:\n");

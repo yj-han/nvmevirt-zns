@@ -25,4 +25,4 @@ function do_collect() {
 	mv nvstat results/nvstat-$4-$1-$2-$3
 }
 
-eval_nvmev $1 $2 $3 $4:
+eval_nvmev $1 $2 $3 $4

@@ -1,0 +1,18 @@
+seq-write: (g=0): rw=write, bs=(R) 1024KiB-1024KiB, (W) 1024KiB-1024KiB, (T) 1024KiB-1024KiB, ioengine=libaio, iodepth=1
+fio-3.16
+Starting 1 process
+fio: io_u error on file /dev/nvme2n1: Input/output error: write offset=0, buflen=1048576
+fio: pid=23955, err=5/file:io_u.c:1787, func=io_u error, error=Input/output error
+
+seq-write: (groupid=0, jobs=1): err= 5 (file:io_u.c:1787, func=io_u error, error=Input/output error): pid=23955: Sat Jun 15 14:50:29 2024
+  cpu          : usr=0.00%, sys=0.00%, ctx=1, majf=0, minf=21
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=0,1,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+
+Disk stats (read/write):
+  nvme2n1: ios=48/0, merge=0/0, ticks=8/0, in_queue=8, util=0.01%

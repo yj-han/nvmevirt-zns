@@ -7,6 +7,7 @@ ioengine=libaio
 numjobs=${JOBS}
 iodepth=${DEPTH}
 group_reporting
+direct=1
 
 [rand-write]
 filename=${DEV}
