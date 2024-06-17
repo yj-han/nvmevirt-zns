@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 #define BUFFER_SIZE 4096
-#define NUM_ITERATIONS 1000
+#define NUM_ITERATIONS 10000
 
 int main(int argc, char **argv) {
   int fd;
@@ -15,6 +15,7 @@ int main(int argc, char **argv) {
   ssize_t bytes_read, bytes_written;
   clock_t start, end;
   double cpu_time_used;
+  double write_throughput, read_throughput;
 
   // Allocate memory for the buffer (aligned to 512-byte boundary)
   posix_memalign((void **)&buffer, 512, BUFFER_SIZE);
@@ -42,7 +43,10 @@ int main(int argc, char **argv) {
   }
   end = clock();
   cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC * 1000000;
-  printf("Write benchmark: %.2f microseconds\n", cpu_time_used);
+  write_throughput = (BUFFER_SIZE * NUM_ITERATIONS) /
+                     (cpu_time_used / 1000000) / (1024 * 1024);
+  printf("Write benchmark: %.2f microseconds, Throughput: %.2f MB/s\n",
+         cpu_time_used, write_throughput);
 
   // Reset the file offset to the beginning
   lseek(fd, 0, SEEK_SET);
@@ -58,14 +62,10 @@ int main(int argc, char **argv) {
   }
   end = clock();
   cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC * 1000000;
-  printf("Read benchmark: %.2f microseconds\n", cpu_time_used);
-
-  // Print the contents of the buffer
-  printf("Read from file:\n");
-  for (int i = 0; i < BUFFER_SIZE / sizeof(int); i++) {
-    printf("%d ", buffer[i]);
-  }
-  printf("\n");
+  read_throughput = (BUFFER_SIZE * (double)NUM_ITERATIONS) /
+                    (cpu_time_used / 1000000) / (1024 * 1024);
+  printf("Read benchmark: %.2f microseconds, Throughput: %.2f MB/s\n",
+         cpu_time_used, read_throughput);
 
   // Close the file
   close(fd);
