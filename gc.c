@@ -7,13 +7,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define
-
-struct checkpoint {
-  __u64 zone_start;
-  __u64 offset;
-  __u64 size;
-};
+#define CHECKPOINTSZ 4096
 
 int main(int argc, char **argv) {
   int fd = open(argv[1], O_RDWR | O_DIRECT, 0644);
@@ -37,10 +31,18 @@ int main(int argc, char **argv) {
     return 1;
   }
 
+  // Reserve zone 0 to store metadata about checkpoints
+  int chk_fd = open(argv[1], O_RDWR | O_DIRECT, 0644);
+  if (chk_fd == -1) {
+    perror("Error opneing file");
+    exit(EXIT_FAILURE);
+  }
+
   report->nr_zones = nr_zones;
   report->sector = 0;
 
-  struct checkpoint ckpt = {0};
+  //  struct checkpoint *checkpoints = malloc(sizeof(struct checkpoint) *
+  //  nr_zones);
 
   while (report->sector < nr_zones) {
     if (ioctl(fd, BLKREPORTZONE, report) < 0) {
@@ -51,10 +53,9 @@ int main(int argc, char **argv) {
     for (int i = 0; i < report->nr_zones; i++) {
       if (report->zones[i].wp - report->zones[i].start >=
           report->zones[i].len / 2) {
+
         // Update checkpoint information
-        ckpt.zone_start = report->zones[i].start;
-        ckpt.offset = report->zones[i].wp - report->zones[i].start;
-        ckpt.size = report->zones[i].wp - report->zones[i].start;
+        // checkpoints[i].end = CHECKPOINTSZ;
 
         struct blk_zone_range range = {.sector = report->zones[i].start,
                                        .nr_sectors = report->zones[i].len};
@@ -71,12 +72,12 @@ int main(int argc, char **argv) {
           continue;
         }
 
-        ssize_t bytes_written =
-            write(fd, (void *)((char *)report + ckpt.offset), ckpt.size);
-        if (bytes_written != ckpt.size) {
-          perror("Failed to write data to zone start");
-          continue;
-        }
+        //   ssize_t bytes_written =
+        //       write(fd, (void *)((char *)report + ckpt.offset), ckpt.size);
+        //   if (bytes_written != ckpt.size) {
+        //     perror("Failed to write data to zone start");
+        //     continue;
+        //   }
       }
     }
 

@@ -12,6 +12,13 @@ GRUB_CMDLINE_LINUX="memmap=32G\\\$64G isolcpus=7,8 amd_iommu=off"
 #CONFIG_NVMEVIRT_SSD := y
 CONFIG_NVMEVIRT_ZNS := y
 #CONFIG_NVMEVIRT_KV := y
+
+```sh
+ccflags-$(CONFIG_NVMEVIRT_ZNS) += -DBASE_SSD=WD_ZN540
+#ccflags-$(CONFIG_NVMEVIRT_ZNS) += -DBASE_SSD=ZNS_PROTOTYPE
+ccflags-$(CONFIG_NVMEVIRT_ZNS) += -Wno-implicit-fallthrough
+nvmev-$(CONFIG_NVMEVIRT_ZNS) += ssd.o zns_ftl.o zns_read_write.o zns_mgmt_send.o zns_mgmt_recv.o channel_model.o
+```
 ```
 - commands to add nvmev module
 ```sh
@@ -21,7 +28,6 @@ sudo insmod ./nvmev.ko \
   memmap_size=16385M   \
   cpus=7,8 
 ```
-![](Screenshot%202024-06-03%20at%201.27.24%E2%80%AFPM.png)<!-- {"width":453} -->
 - commands to remove nvmev module
 ```sh
 sudo rmmod nvmev
@@ -49,4 +55,7 @@ using `examples/rw.c`,
   - Write benchmark: 38651.00 microseconds, Throughput: 1010.65 MB/s
   - Read benchmark: 45682.00 microseconds, Throughput: 855.10 MB/s
 
-## Host Managed GC
+## Host Managed Garbage Collection (GC) for OPT Model Checkpoints
+- `gc.c`: the host periodically runs a garbage collector and remove
+  old checkpoints in a zone when more than half of the zone is filled.
+  - the code assumes that the size of a checkpoint for the model is known.
