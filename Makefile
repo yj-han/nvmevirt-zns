@@ -1,14 +1,20 @@
 CC = gcc
-CFLAGS = -D_GNU_SOURCE -Wall -Wextra -pedantic
+CFLAGS = -D_GNU_SOURCE -Wall -pedantic
 KERNELDIR := /home/os/nvmevirt/
-
 SRCS := $(wildcard *.c)
 PROGS := $(patsubst %.c,%,$(SRCS))
+OBJDIR := bin
+BINDIR := bin
 
 all: $(PROGS)
 
-%: %.c
-	$(CC) $(CFLAGS) -o $@ $<
+$(OBJDIR)/%.o: %.c
+	@mkdir -p $(OBJDIR)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(PROGS): %: $(OBJDIR)/%.o
+	$(CC) $(CFLAGS) -o $(BINDIR)/$@ $<
 
 clean:
-	rm -f $(PROGS)
+	rm -rf $(OBJDIR) $(PROGS)
+

@@ -53,3 +53,5 @@ dkms.conf
 
 # Mac
 .DS_Store
+
+bin/

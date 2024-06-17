@@ -44,7 +44,9 @@ int main(int argc, char **argv) {
 
   struct blk_zone_report *report = malloc(sizeof(struct blk_zone_report) +
                                           nr_zones * sizeof(struct blk_zone));
-  if (!report) {
+
+  __u64 *bytes_written = malloc(sizeof(__u64) * nr_zones);
+  if (!report || !bytes_written) {
     perror("Failed to allocate memory");
     close(fd);
     return 1;
@@ -73,7 +75,7 @@ int main(int argc, char **argv) {
         continue;
       }
 
-      ssize_t bytes_written = write(fd, buffer, BUFFER_SIZE);
+      bytes_written[i] = write(fd, buffer, BUFFER_SIZE);
     }
     report->sector += report->nr_zones;
   }
@@ -96,7 +98,7 @@ int main(int argc, char **argv) {
     }
 
     for (int i = 0; i < report_w->nr_zones; i++) {
-      printf("Zone %d: after write\n", i);
+      printf("Zone %d: after write %llu\n", i, bytes_written[i]);
       printf("  Write Pointer: %llu\n", report_w->zones[i].wp);
       printf("  Write Pointer Diff: %llu\n",
              report_w->zones[i].wp - report->zones[i].wp);
