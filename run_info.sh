@@ -1,1 +1,1 @@
-make && ./zns_info /dev/nvme2n1
+make && sudo ./zns_report /dev/nvme2n1

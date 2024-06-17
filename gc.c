@@ -7,6 +7,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#define
+
 struct checkpoint {
   __u64 zone_start;
   __u64 offset;
@@ -47,16 +49,6 @@ int main(int argc, char **argv) {
     }
 
     for (int i = 0; i < report->nr_zones; i++) {
-      printf("Zone %d:\n", i);
-      printf("  Start: %llu\n", report->zones[i].start);
-      printf("  Length: %llu\n", report->zones[i].len);
-      printf("  Write Pointer: %llu\n", report->zones[i].wp);
-      printf("  Type: %u\n", report->zones[i].type);
-      printf("  Condition: %u\n", report->zones[i].cond);
-      printf("  Non-sequential: %u\n", report->zones[i].non_seq);
-      printf("  Reset Recommended: %u\n", report->zones[i].reset);
-      printf("\n");
-
       if (report->zones[i].wp - report->zones[i].start >=
           report->zones[i].len / 2) {
         // Update checkpoint information
