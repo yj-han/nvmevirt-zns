@@ -9,7 +9,6 @@
 #include <unistd.h>
 
 #define BUFFER_SIZE (128 * 1024 * 1024) // 128 MB
-#define WRITE_COUNT 3
 
 int main(int argc, char **argv) {
   // Allocate memory for the buffer (aligned to 512-byte boundary)
@@ -65,10 +64,6 @@ int main(int argc, char **argv) {
       printf("  Start: %llu\n", report->zones[i].start);
       printf("  Length: %llu\n", report->zones[i].len);
       printf("  Write Pointer: %llu\n", report->zones[i].wp);
-      printf("  Type: %u\n", report->zones[i].type);
-      printf("  Condition: %u\n", report->zones[i].cond);
-      printf("  Non-sequential: %u\n", report->zones[i].non_seq);
-      printf("  Reset Recommended: %u\n", report->zones[i].reset);
       printf("\n");
 
       // Move to the wptr of each zone
@@ -79,40 +74,35 @@ int main(int argc, char **argv) {
       }
 
       ssize_t bytes_written = write(fd, buffer, BUFFER_SIZE);
-      report->sector += report->nr_zones;
     }
+    report->sector += report->nr_zones;
   }
 
-  report->nr_zones = nr_zones;
-  report->sector = 0;
+  struct blk_zone_report *report_w = malloc(sizeof(struct blk_zone_report) +
+                                            nr_zones * sizeof(struct blk_zone));
+  if (!report_w) {
+    perror("Failed to allocate memory");
+    close(fd);
+    return 1;
+  }
 
-  while (report->sector < nr_zones) {
-    if (ioctl(fd, BLKREPORTZONE, report) < 0) {
+  report_w->nr_zones = nr_zones;
+  report_w->sector = 0;
+
+  while (report_w->sector < nr_zones) {
+    if (ioctl(fd, BLKREPORTZONE, report_w) < 0) {
       perror("Failed to get zone report");
       break;
     }
 
-    for (int i = 0; i < report->nr_zones; i++) {
+    for (int i = 0; i < report_w->nr_zones; i++) {
       printf("Zone %d: after write\n", i);
-      printf("  Start: %llu\n", report->zones[i].start);
-      printf("  Length: %llu\n", report->zones[i].len);
-      printf("  Write Pointer: %llu\n", report->zones[i].wp);
-      printf("  Type: %u\n", report->zones[i].type);
-      printf("  Condition: %u\n", report->zones[i].cond);
-      printf("  Non-sequential: %u\n", report->zones[i].non_seq);
-      printf("  Reset Recommended: %u\n", report->zones[i].reset);
+      printf("  Write Pointer: %llu\n", report_w->zones[i].wp);
+      printf("  Write Pointer Diff: %llu\n",
+             report_w->zones[i].wp - report->zones[i].wp);
       printf("\n");
-
-      // Move to the wptr of each zone
-      off_t offset = lseek(fd, report->zones[i].wp * 512, SEEK_SET);
-      if (offset == -1) {
-        perror("Failed to seek to zone wp");
-        continue;
-      }
-
-      ssize_t bytes_written = write(fd, buffer, BUFFER_SIZE);
-      report->sector += report->nr_zones;
     }
+    report_w->sector += report_w->nr_zones;
   }
 
   // Close the file
@@ -120,6 +110,7 @@ int main(int argc, char **argv) {
 
   // Free the allocated memory
   free(buffer);
-
+  free(report);
+  free(report_w);
   return 0;
 }
